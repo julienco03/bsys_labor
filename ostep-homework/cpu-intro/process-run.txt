@@ -1,0 +1,42 @@
+1. Die CPU-Nutzung muss 100% betragen, da beide Prozesse keine IO-Request tätigen.
+Außerdem läuft erst Prozess0 komplett durch und anschließend direkt Prozess1. Es gibt
+also auch keine ungenutzte Zeit.
+
+2. Die Ausführung der Prozess 0 und 1 sollte 9 Zeiteinheiten dauern, 4 Zeiteinheiten durch
+Prozess0 und anschließend 5 durch Prozess1.
+=> Falsch, es sind 11 Zeiteinheiten. Eine Zeiteinheit ergibt sich durch die IO-Anfrage und eine
+am Ende, wenn die IO-Anfrage fertig ist.
+
+3. Da Prozess0 nach der IO-Request in den Zustand BLOCKED übergeht, kann Prozess1 die CPU nutzen.
+Dadurch erhöht sich die CPU-Nutzung stark. Genauer gesagt dauert die Auführung beider Prozesse 
+7 Zeiteinheiten, in 6 davon wird die CPU genutzt (85,71%) und in 5 wird IO genutzt (71,43%).
+
+4. Wenn nach einer IO-Request nicht zu einem anderen Prozess (in dem Fall Prozess1) geswitcht wird,
+leidet die Ressourcennutzung extrem, da die CPU während 4 Zeiteinheiten ungenutzt bleibt. 
+Stattdessen wird Prozess1 erst zum Schluss ausgeführt.
+
+5. Mit dem Flag SWITCH_ON_IO ergibt sich der Fall aus Punkt 3. Das bedeutet, dass die CPU durch
+Prozess1 effizient genutzt werden kann, während Prozess0 blockiert ist.
+
+6. Nein, die Ressourcennutzung ist nicht sehr effizient, denn die Ausführung der 2. und 3. IO-Request
+könnte viel früher stattfinden, nämlich direkt im Anschluss an die 1. IO-Request. Schließlich dauert
+die Ausführung aller Prozesse am Ende unnötig lange; die CPU-intensiven Prozesse sind ab Zeiteinheit 16 
+fertig, die letzten 2 IO-Anfragen müssen aber noch zu Ende laufen. Während dieser Prozess blockiert 
+ist, bleibt die CPU aber ungenutzt.
+
+7. Wenn die IO-Anfrage immer zum frühestmöglichen Zeitpunkt getätigt wird, wird die CPU am effizientesten
+genutzt (100%). Während Prozess0 nämlich blockiert ist, nutzen die anderen Prozesse die CPU.
+
+8. 	--seed=1	
+	IO_RUN_IMMEDIATE vs. IO_RUN_LATER:	kein Unterschied, effiziente Ressourcennutzung
+	SWITCH_ON_IO vs. SWITCH_ON_END:	SWITCH_ON_END ist uneffizienter, da die 3 CPU-intensiven Instruktionen erst am Ende 
+							ausgeführt werden, obwohl CPU davor sehr oft frei ist
+	
+	--seed=2	
+	IO_RUN_IMMEDIATE vs. IO_RUN_LATER:	kein Unterschied, effiziente Ressourcennutzung
+	SWITCH_ON_IO vs. SWITCH_ON_END:	SWITCH_ON_END ist sehr uneffizient (da keine Parallelität), wohingegen 
+							SWITCH_ON_IO nicht besser performen könnte
+
+	--seed=3	
+	IO_RUN_IMMEDIATE vs. IO_RUN_LATER:	IO_RUN_IMMEDIATE performt einen Hauch besser (~53% vs. 50% CPU-Nutzung)
+	SWITCH_ON_IO vs. SWITCH_ON_END:	SWITCH_ON_END erzielt wiederholt eine schlechtere CPU-Nutzung (50% vs. 37,5%)
