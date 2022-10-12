@@ -14,8 +14,9 @@ int main(int argc, char *argv[]) {
         exit(1);
     } else if (rc == 0)
     {
+        //int rc_wait = wait(NULL);
         printf("hello, I am child (pid:%d)\n", (int) getpid());
-        printf("(rc_wait:%d)\n", rc_wait);
+        //printf("(rc_wait:%d)\n", rc_wait);
     } else
     {
         int rc_wait = wait(NULL);

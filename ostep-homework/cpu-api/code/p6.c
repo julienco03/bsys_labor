@@ -28,6 +28,5 @@ int main(int argc, char *argv[]) {
  * wenn man nicht auf einen x-beliebigen terminierten Kindprozess warten will,
  * sondern z.B auf ein Kind mit einer bestimmten pid warten will (ob terminiert oder nicht).
  *
- *
  * Note: The call wait(&status) is equivalent to waitpid(-1, &status, 0).
  */
