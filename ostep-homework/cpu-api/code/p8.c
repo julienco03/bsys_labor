@@ -1,36 +1,55 @@
 #include <stdio.h>
-#include <sys/wait.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
+#include <fcntl.h>
+#include <assert.h>
+#include <sys/wait.h>
 
-int main(void) {
-    int fd[2];
-    int nbytes;
-    pid_t childpid;
-    char string[]  = "Hello world\n";
-    char readbuffer[20];
-
-    pipe(fd);
-
-    if((childpid = fork()) == -1)
-    {
-        perror("fork");
+int main(int argc, char *argv[])
+{
+    int pipefd[2];
+    if (pipe(pipefd) == -1) {
+        // pipe failed; exit
+        fprintf(stderr, "pipe failed\n");
         exit(1);
     }
 
-    if (childpid == 0)  /* Child reads from pipe */
-    {
-        close(fd[1]);  /* Close unused write end */
-        nbytes = read(fd[0], readbuffer, sizeof(string) + 1);
-        printf("Read %d bytes\n", nbytes);
-        printf("Received string: %s", readbuffer);
+    int rc1 = fork();
+    if (rc1 < 0) {
+        // fork failed; exit
+        fprintf(stderr, "fork failed\n");
+        exit(1);
+    } else if (rc1 == 0) {
+        // child1 writes into pipe
+        close(pipefd[0]);
+        write(pipefd[1], "Hello, World!\n", 15);
         exit(0);
-    } else  /* Parent writes string to pipe */
-    {
-        close(fd[0]);  /* Close unused read end */
-        write(fd[1], string, strlen(string) + 1);
-        wait(NULL);  /* Wait for child */
+    } else {
+        // parent goes down this path (original process)
+        int rc2 = fork();
+        if (rc2 < 0) {
+            // fork failed; exit
+            fprintf(stderr, "fork failed\n");
+            exit(1);
+        } else if (rc2 == 0) {
+            // child:
+            char str[15];
+
+            // child2 reads from pipe
+            close(pipefd[1]);
+            read(pipefd[0], str, 15);
+            printf("%s", str);
+            exit(0);
+        }
+
+        // parent does not interact with pipe
+        close(pipefd[0]);
+        close(pipefd[1]);
+
+        // wait for children
+        wait(NULL);
+        wait(NULL);
     }
 
     return 0;

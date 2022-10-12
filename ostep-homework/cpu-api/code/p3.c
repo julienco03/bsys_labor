@@ -18,6 +18,7 @@ int main() {
         printf("hello\n");
     } else
     {
+        sleep(1);
         printf("hello, I am parent of %d (pid:%d)\n",
                 rc, (int) getpid());
         printf("goodbye\n");
