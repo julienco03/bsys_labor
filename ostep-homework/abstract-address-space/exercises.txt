@@ -1,0 +1,25 @@
+4. Übergibt man beim Programmaufruf eine zu große Zahl für den zu reservierenden Speicher,
+   kommt es zu einem SEGMENTATION_FAULT (auf meinem System ungefähr ab 850.000 Megabyte).
+
+    10 MB
+        bevor running program:   used=470, free=4557, available=5673
+        while running program:   used=482, free=4544, available=5661
+        after killing program:   used=470, free=4557, available=5673
+    1000 MB
+        bevor running program:   used=470, free=4557, available=5673
+        while running program:   used=1472, free=3556, available=4671
+        after killing program:   used=470, free=4558, available=5673
+    100000 MB
+        bevor running program:   used=470, free=4557, available=5673
+        while running program:   used=2169, free=2858, available=3974
+        after killing program:   used=470, free=4557, available= 5673
+
+    => Bei 10MB und 1000MB entsprechen die Ergebnisse meinen Erwartungen; bei 100.000MB jedoch nicht.
+    Es scheint, als würde ab einer bestimmten Grenze, der Speicher nicht im Arbeitsspeicher reserviert werden bzw. nur ein Teil davon.
+
+7. Man sieht das memory mapping von einem Prozess. Beim Aufruf von pmap -X PID (=PID von memory-user) sieht man folgende
+   Mapping-Entitäten: memory-user, [anon], libc.so.6, ld-linux-x86-64.so.2, [stack].
+
+8. Aufruf von memory-user mit 100MB:        mapped=105180K, writeable/private=102760K
+   Aufruf von memory-user mit 100.000MB:    mapped=102402780K , writeable/private=102400360K
+   => Der 'gemappte' Speicher entspricht so ziemlich dem dynamisch reservierten Speicher des Programms.
