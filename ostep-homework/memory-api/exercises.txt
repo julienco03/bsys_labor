@@ -1,0 +1,142 @@
+1. Segmentation fault
+
+2. Program received SIGSEGV, Segmentation fault.
+   SIGSEGV ist ein Signal und beschreibt eine ungültige Speicherreferenz.
+
+3.
+    ==2928157== Invalid read of size 4
+    ==2928157==    at 0x1091B6: main (null.c:7)
+    ==2928157==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+    ==2928157==
+    ==2928157== Process terminating with default action of signal 11 (SIGSEGV)
+    ==2928157==  Access not within mapped region at address 0x0
+    ==2928157==    at 0x1091B6: main (null.c:7)
+    ==2928157==  If you believe this happened as a result of a stack
+    ==2928157==  overflow in your program's main thread (unlikely but
+    ==2928157==  possible), you can try to increase the size of the
+    ==2928157==  main thread stack using the --main-stacksize= flag.
+    ==2928157==  The main thread stack size used in this run was 8388608.
+    ==2928157==
+    ==2928157== HEAP SUMMARY:
+    ==2928157==     in use at exit: 4 bytes in 1 blocks
+    ==2928157==   total heap usage: 1 allocs, 0 frees, 4 bytes allocated
+    ==2928157==
+    ==2928157== 4 bytes in 1 blocks are definitely lost in loss record 1 of 1
+    ==2928157==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+    ==2928157==    by 0x1091A5: main (null.c:5)
+    ==2928157==
+    ==2928157== LEAK SUMMARY:
+    ==2928157==    definitely lost: 4 bytes in 1 blocks
+    ==2928157==    indirectly lost: 0 bytes in 0 blocks
+    ==2928157==      possibly lost: 0 bytes in 0 blocks
+    ==2928157==    still reachable: 0 bytes in 0 blocks
+    ==2928157==         suppressed: 0 bytes in 0 blocks
+    ==2928157==
+    ==2928157== For lists of detected and suppressed errors, rerun with: -s
+    ==2928157== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)
+    Segmentation fault
+
+4. (process 2928776) exited normally
+
+    ==2928951== HEAP SUMMARY:
+    ==2928951==     in use at exit: 4 bytes in 1 blocks
+    ==2928951==   total heap usage: 1 allocs, 0 frees, 4 bytes allocated
+    ==2928951==
+    ==2928951== 4 bytes in 1 blocks are definitely lost in loss record 1 of 1
+    ==2928951==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+    ==2928951==    by 0x109165: main (in /home/ju121kli/z-drive/ostep-homework/memory-api/null_no_free)
+    ==2928951==
+    ==2928951== LEAK SUMMARY:
+    ==2928951==    definitely lost: 4 bytes in 1 blocks
+    ==2928951==    indirectly lost: 0 bytes in 0 blocks
+    ==2928951==      possibly lost: 0 bytes in 0 blocks
+    ==2928951==    still reachable: 0 bytes in 0 blocks
+    ==2928951==         suppressed: 0 bytes in 0 blocks
+    ==2928951==
+    ==2928951== For lists of detected and suppressed errors, rerun with: -s
+    ==2928951== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+
+5. (process 2929572) exited normally
+
+    ==2929652== Invalid write of size 4
+    ==2929652==    at 0x109174: main (malloc_int_array.c:7)
+    ==2929652==  Address 0x4a911d0 is 0 bytes after a block of size 400 alloc'd
+    ==2929652==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+    ==2929652==    by 0x109165: main (malloc_int_array.c:6)
+    ==2929652==
+    ==2929652==
+    ==2929652== HEAP SUMMARY:
+    ==2929652==     in use at exit: 400 bytes in 1 blocks
+    ==2929652==   total heap usage: 1 allocs, 0 frees, 400 bytes allocated
+    ==2929652==
+    ==2929652== 400 bytes in 1 blocks are definitely lost in loss record 1 of 1
+    ==2929652==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+    ==2929652==    by 0x109165: main (malloc_int_array.c:6)
+    ==2929652==
+    ==2929652== LEAK SUMMARY:
+    ==2929652==    definitely lost: 400 bytes in 1 blocks
+    ==2929652==    indirectly lost: 0 bytes in 0 blocks
+    ==2929652==      possibly lost: 0 bytes in 0 blocks
+    ==2929652==    still reachable: 0 bytes in 0 blocks
+    ==2929652==         suppressed: 0 bytes in 0 blocks
+    ==2929652==
+    ==2929652== For lists of detected and suppressed errors, rerun with: -s
+    ==2929652== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)
+
+    => Programm läuft ohne Fehler, aber 400 Bytes gehen verloren.
+
+6. (process 2930215) exited normally
+
+    ==2930356== Invalid read of size 4
+    ==2930356==    at 0x1091BA: main (malloc_free_array.c:8)
+    ==2930356==  Address 0x4a91040 is 0 bytes inside a block of size 400 free'd
+    ==2930356==    at 0x484B27F: free (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+    ==2930356==    by 0x1091B5: main (malloc_free_array.c:7)
+    ==2930356==  Block was alloc'd at
+    ==2930356==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+    ==2930356==    by 0x1091A5: main (malloc_free_array.c:6)
+    ==2930356==
+    data[0]: 0
+    ==2930356==
+    ==2930356== HEAP SUMMARY:
+    ==2930356==     in use at exit: 0 bytes in 0 blocks
+    ==2930356==   total heap usage: 2 allocs, 2 frees, 1,424 bytes allocated
+    ==2930356==
+    ==2930356== All heap blocks were freed -- no leaks are possible
+    ==2930356==
+    ==2930356== For lists of detected and suppressed errors, rerun with: -s
+    ==2930356== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+
+    => Program läuft, keine memory leaks, aber unvalid read in Zeile 8 (dangling pointer!).
+
+7.  ju121kli@ct-bsys-2:~/z-drive/ostep-homework/memory-api$ gcc -g -o funny_free funny_free.c
+    funny_free.c: In function ‘main’:
+    funny_free.c:7:5: warning: ‘free’ called on pointer ‘data’ with nonzero offset 200 [-Wfree-nonheap-object]
+        7 |     free(&data[50]);
+        |     ^~~~~~~~~~~~~~~
+    funny_free.c:6:25: note: returned from ‘malloc’
+        6 |     int *data = (int *) malloc(ARR_SIZE * sizeof(int));
+        |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    ---GDB---
+    free(): invalid pointer
+    Program received signal SIGABRT, Aborted.
+    __pthread_kill_implementation (no_tid=0, signo=6, threadid=140737351538496) at ./nptl/pthread_kill.c:44
+    44      ./nptl/pthread_kill.c: No such file or directory.
+
+    => Der Compiler meldet bereits eine Warnmeldung, da der übergebene Pointer
+       beim Aufruf von free() kein Heap-Objekt ist.
+
+8. Im Vergleich zur LinkedList ist der Vector gerade beim Einfügen sehr uneffizient,
+   da Feldvergößerungen durch teures Kopieren vorgenommen werden.
+   Auch das Einfügen am Listenanfang ist bei einem Feld uneffizient, da alle Elemente
+   nach rechts verschoben werden müssen.
+
+    ==2939078== HEAP SUMMARY:
+    ==2939078==     in use at exit: 0 bytes in 0 blocks
+    ==2939078==   total heap usage: 5 allocs, 5 frees, 1,084 bytes allocated
+    ==2939078==
+    ==2939078== All heap blocks were freed -- no leaks are possible
+    ==2939078==
+    ==2939078== For lists of detected and suppressed errors, rerun with: -s
+    ==2939078== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
