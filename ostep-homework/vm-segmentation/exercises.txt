@@ -1,0 +1,38 @@
+1.  seed=0
+    VA  0: 0x0000006c (decimal:  108) --> seg1, 492
+    VA  1: 0x00000061 (decimal:   97) --> segfault in seg1
+    VA  2: 0x00000035 (decimal:   53) --> segfault in seg0
+    VA  3: 0x00000021 (decimal:   33) --> segfault in seg0
+    VA  4: 0x00000041 (decimal:   65) --> segfault in seg1
+
+    seed=1
+    VA  0: 0x00000011 (decimal:   17) --> seg0, 17
+    VA  1: 0x0000006c (decimal:  108) --> seg1, 492
+    VA  2: 0x00000061 (decimal:   97) --> segfault in seg1
+    VA  3: 0x00000020 (decimal:   32) --> segfault in seg0
+    VA  4: 0x0000003f (decimal:   63) --> segfault in seg0
+
+    seed=2
+    VA  0: 0x0000007a (decimal:  122) --> seg1, 506
+    VA  1: 0x00000079 (decimal:  121) --> seg1, 505
+    VA  2: 0x00000007 (decimal:    7) --> seg0, 7
+    VA  3: 0x0000000a (decimal:   10) --> seg0, 10
+    VA  4: 0x0000006a (decimal:  106) --> segfault in seg1
+
+2.  highest legal virtual address in seg0: 19
+    lowest legal virtual address in seg1: 492
+    lowest illegal virtual address: 20
+    highest illegal virtual address: 491
+    => seg0 address space ist 0-19 und seg1 address space ist 491-511.
+
+    So lässt sich das überprüfen: python3 segmentation.py -a 128 -p 512 -b 0 -l 20 -B 512 -L 20 -s 1 -A 19,108,20,107 -c
+
+3.  python3 segmentation.py -p 128 -a 16 -A 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 --b0 0 --l0 2 --b1 16 --l1 2 -c
+    => seg0: base=0, limit=2
+    => seg1: base=16, limit=2
+
+4.  python3 segmentation.py -a 128 -p 512 --b0 0 --b1 128 --l0 58 --l1 58 -c
+    => Damit 90% der virtuellen Adressen valid sind, sollten die beiden limit-Register
+    etwa einen Wert von size (address space / 2) * 0.9 haben.
+    Bsp. -a 128 --> 128 / 2 * 0.9 = 64 * 0.9 = ~58
+    => Damit ist das limit-Register ausschlaggebend für so ein Ergebnis.
