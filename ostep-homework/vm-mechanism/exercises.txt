@@ -1,0 +1,25 @@
+1.  seed=1, base=13884, limit=290
+    VA  0: 0x0000030e (decimal:  782) --> out of bounds
+    VA  1: 0x00000105 (decimal:  261) --> 261+13884=14145
+    VA  2: 0x000001fb (decimal:  507) --> out of bounds
+    VA  3: 0x000001cc (decimal:  460) --> out of bounds
+    VA  4: 0x0000029b (decimal:  667) --> out of bounds
+
+    seed=2, base=15529, limit=500
+    VA  0: 0x00000039 (decimal:   57) --> VALID: 57+15529=15586
+    VA  1: 0x00000056 (decimal:   86) --> VALID: 86+15529=15615
+    VA  2: 0x00000357 (decimal:  855) --> out of bounds
+    VA  3: 0x000002f1 (decimal:  753) --> out of bounds
+    VA  4: 0x000002ad (decimal:  685) --> out of bounds
+
+    seed=3, base=8916, limit=316
+    VA  0: 0x0000017a (decimal:  378) --> out of bounds
+    VA  1: 0x0000026a (decimal:  618) --> out of bounds
+    VA  2: 0x00000280 (decimal:  640) --> out of bounds
+    VA  3: 0x00000043 (decimal:   67) --> 67+8916=8983
+    VA  4: 0x0000000d (decimal:   13) --> 13+8916=8929
+
+2.  limit = höchste Adresse + 1, also 929+1=930
+
+3.  Größe des physikalischen Speichers - limit = 16384 - 100 = 16284
+    (lässt sich mit Flag -b 16284 prüfen)
