@@ -1,1 +1,1 @@
-Aufgaben aus dem OSTEP Buch inkl. eigener Lösungen 
+Exercises from the OSTEP book including own solutions for Operating Systems at HTWG Konstanz
