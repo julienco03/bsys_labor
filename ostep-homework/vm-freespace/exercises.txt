@@ -1,0 +1,162 @@
+1.  python3 malloc.py -n 10 -H 0 -p BEST -s 0
+_________________________________________________________________________________________
+ptr[0] = Alloc(3) returned 1000 (search:1)
+Free List [size 1]: [addr:1003 sz:97]
+
+Free(ptr[0]) returned 0
+Free List [size 2]: [addr:1000 sz:3] [addr:1003 sz:97]
+
+ptr[1] = Alloc(5) returned 1003 (search:2)
+Free List [size 2]: [addr:1000 sz:3] [addr:1008 sz:92]
+
+Free(ptr[1]) returned 0
+Free List [size 3]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1008 sz:92]
+
+ptr[2] = Alloc(8) returned 1008 (search:3)
+Free List [size 3]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1016 sz:84]
+
+Free(ptr[2]) returned 0
+Free List [size 4]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1008 sz:8] [addr:1016 sz:84]
+
+ptr[3] = Alloc(8) returned 1008 (search:4)
+Free List [size 3]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1016 sz:84]
+
+Free(ptr[3]) returned 0
+Free List [size 4]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1008 sz:8] [addr:1016 sz:84]
+
+ptr[4] = Alloc(2) returned 1000 (search:4)
+Free List [size 4]: [addr:1002 sz:1] [addr:1003 sz:5] [addr:1008 sz:8] [addr:1016 sz:84]
+
+ptr[5] = Alloc(7) returned 1008 (search:4)
+Free List [size 4]: [addr:1002 sz:1] [addr:1003 sz:5] [addr:1015 sz:1] [addr:1016 sz:84]
+_________________________________________________________________________________________
+=> Der Speicher leidet zunehmend unter external fragmentation + die free list wird immer größer.
+
+
+2.  python3 malloc.py -n 10 -H 0 -p WORST -s 0
+_________________________________________________________________________________________
+ptr[0] = Alloc(3) returned 1000 (search:1)
+Free List [size 1]: [addr:1003 sz:97]
+
+Free(ptr[0]) returned 0
+Free List [size 2]: [addr:1000 sz:3] [addr:1003 sz:97]
+
+ptr[1] = Alloc(5) returned 1003 (search:2)
+Free List [size 2]: [addr:1000 sz:3] [addr:1008 sz:92]
+
+Free(ptr[1]) returned 0
+Free List [size 3]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1008 sz:92]
+
+ptr[2] = Alloc(8) returned 1008 (search:3)
+Free List [size 3]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1016 sz:84]
+
+Free(ptr[2]) returned 0
+Free List [size 4]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1008 sz:8] [addr:1016 sz:84]
+
+ptr[3] = Alloc(8) returned 1016 (search:4)
+Free List [size 4]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1008 sz:8] [addr:1024 sz:76]
+
+Free(ptr[3]) returned 0
+Free List [size 5]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1008 sz:8] [addr:1016 sz:8] [addr:1024 sz:76]
+
+ptr[4] = Alloc(2) returned 1024 (search:5)
+Free List [size 5]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1008 sz:8] [addr:1016 sz:8] [addr:1026 sz:74]
+
+ptr[5] = Alloc(7) returned 1026 (search:5)
+Free List [size 5]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1008 sz:8] [addr:1016 sz:8] [addr:1033 sz:67]
+_________________________________________________________________________________________
+=> Bei worst-fit kommt es bei jeder Allokierung zu einem zusätzlichen Eintrag in der
+free list, da das größte Speichersegment jedes Mal weiter aufgeteilt wird. Bei best-fit
+hatte man gelegentlich "Glück"; so konnte eine Allokierung genau einen freien Speichereintrag
+nutzen und die free list somit um einen Eintrag verkleinern.
+
+
+3.  python3 malloc.py -n 10 -H 0 -p FIRST -s 0
+_________________________________________________________________________________________
+ptr[0] = Alloc(3) returned 1000 (search:1)
+Free List [size 1]: [addr:1003 sz:97]
+
+Free(ptr[0]) returned 0
+Free List [size 2]: [addr:1000 sz:3] [addr:1003 sz:97]
+
+ptr[1] = Alloc(5) returned 1003 (search:2)
+Free List [size 2]: [addr:1000 sz:3] [addr:1008 sz:92]
+
+Free(ptr[1]) returned 0
+Free List [size 3]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1008 sz:92]
+
+ptr[2] = Alloc(8) returned 1008 (search:3)
+Free List [size 3]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1016 sz:84]
+
+Free(ptr[2]) returned 0
+Free List [size 4]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1008 sz:8] [addr:1016 sz:84]
+
+ptr[3] = Alloc(8) returned 1008 (search:3)
+Free List [size 3]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1016 sz:84]
+
+Free(ptr[3]) returned 0
+Free List [size 4]: [addr:1000 sz:3] [addr:1003 sz:5] [addr:1008 sz:8] [addr:1016 sz:84]
+
+ptr[4] = Alloc(2) returned 1000 (search:1)
+Free List [size 4]: [addr:1002 sz:1] [addr:1003 sz:5] [addr:1008 sz:8] [addr:1016 sz:84]
+
+ptr[5] = Alloc(7) returned 1008 (search:3)
+Free List [size 4]: [addr:1002 sz:1] [addr:1003 sz:5] [addr:1015 sz:1] [addr:1016 sz:84]
+_________________________________________________________________________________________
+=> Die external fragmentation bzw. die Änderungen der free list ist zu best-fit identisch.
+Dafür ist das Allokieren aber schneller, da weniger Einträge der free list angesehen
+werden müssen. Im Bezug auf Geschwindigkeit ist first-fit in dem Beispiel am besten.
+
+
+4.  Durchschnittliche Suchen die in der free list gemacht werden (workload wie in Aufgabe 1)
+
+        ADDRSORT    SIZESORT+   SIZESORT-
+best        3           3           3
+worst       3,3         3,3         3,3
+first       2,17        2,17        1
+
+=> Bei den (nur) 6 Allokierungen spielt die Sortierung für die beiden policies best-fit und
+worst-fit keine Rolle. Bei first-fit erreicht man ein optimales Ergebnis, wenn die free list
+absteigend nach der Größe sortiert ist.
+
+5.  python3 malloc.py -n 1000 -p BEST -l ADDRSORT -s 0 [-C] -c
+
+Anzahl an Einträgen in der free list am Ende (ohne -C)
+        ADDRSORT    SIZESORT+   SIZESORT-
+best        31          31          31
+worst       100         100         100
+first       51          31          100
+
+Anzahl an Einträgen in der free list am Ende (mit -C)
+        ADDRSORT    SIZESORT+   SIZESORT-
+best        1           28          33
+worst       1           100         100
+first       1           28          98
+
+=> Bezüglich der external fragmentation schneidet best-fit gefolgt von first-fit am besten ab.
+Worst-fit ist unabhängig von coalescing und Sortierung in allen Fällen extrem schlecht; die
+Größe der free list beträgt bei 1000 Operationen (sprich operationen > heap) logischerweise
+immer die Größe des Heapspeichers in Bytes, also 100 Einträge.
+Das Verschmelzen der freien Speicherstücke wirkt sich in fast jedem Fall positiv auf die fragmentation aus,
+außerdem spielt die Art der Sortierung definitiv eine entscheidende Rolle. ADDRSORT schneidet am besten ab,
+SIZESORT+ am zweitbesten.
+
+6.  python3 malloc.py -n 1000 -P 1 -s 0 -c
+
+=> Für -P 100 kommt es schnell dazu, dass es keinen Platz mehr gibt, den man allokieren könnte.
+Bei -P 1 sind alle Zeiger gefreed. D.h. alle Speicherstücke der free list ergeben die Größe des Heaps.
+
+7.  python3 malloc.py -A +10,+10,+10,+10,+10,-0,-1,-2,-3,-4 -c
+=> Free List [Size 6]: [addr:1000 sz:10] [addr:1010 sz:10] [addr:1020 sz:10] [addr:1030 sz:10] [addr:1040 sz:10] [addr:1050 sz:50]
+    python3 malloc.py -A +10,+10,+10,+10,+10,-0,-1,-2,-3,-4 -c -C
+=> Free List [Size 1]: [ addr:1000 sz:100 ]
+
+    python3 malloc.py -A +1,-0,+2,-1,+3,-2,+4,-3 -l SIZESORT- -c
+=> Free List [Size 5]: [addr:1010 sz:90] [addr:1006 sz:4] [addr:1003 sz:3] [addr:1001 sz:2] [addr:1000 sz:1]
+    python3 malloc.py -A +1,-0,+2,-1,+3,-2,+4,-3 -l SIZESORT- -c -C
+=> Free List [Size 5]: [addr:1010 sz:90] [addr:1006 sz:4] [addr:1003 sz:3] [addr:1001 sz:2] [addr:1000 sz:1]
+
+=> In machen Fällen beseitigt -C (coalescing) external fragmentation sehr gut (siehe Beispiel 1), in anderen
+wiederum nicht (siehe Beispiel 2). Allgemein erreicht man eine hohe external fragmentation, indem man
+die Speicherstücke in der free list nicht verschmilzt, aber auch durch Sortierungsarten wie SIZESORT-
+und/oder policies wie worst-fit.
