@@ -19,7 +19,8 @@
     VA  3: 0x0000000a (decimal:   10) --> seg0, 10
     VA  4: 0x0000006a (decimal:  106) --> segfault in seg1
 
-2.  highest legal virtual address in seg0: 19
+2.  für -a 512:
+    highest legal virtual address in seg0: 19
     lowest legal virtual address in seg1: 492
     lowest illegal virtual address: 20
     highest illegal virtual address: 491
