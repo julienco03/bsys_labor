@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 from __future__ import print_function
+from os import abort
 import random
 from optparse import OptionParser
 
@@ -16,7 +17,7 @@ class malloc:
     def __init__(self, size, start, headerSize, policy, order, coalesce, align):
         # size of space
         self.size        = size
-        
+
         # info about pretend headers
         self.headerSize  = headerSize
 
@@ -46,7 +47,7 @@ class malloc:
         assert(addr not in self.sizemap)
         self.sizemap[addr] = size
         # print('adding', addr, 'to map of size', size)
-        
+
     def malloc(self, size):
         if self.align != -1:
             left = size % self.align
@@ -66,7 +67,7 @@ class malloc:
             bestSize = -1
 
         count = 0
-            
+
         for i in range(len(self.freelist)):
             eaddr, esize = self.freelist[i][0], self.freelist[i][1]
             count   += 1
@@ -99,7 +100,7 @@ class malloc:
         # simple back on end of list, no coalesce
         if addr not in self.sizemap:
             return -1
-            
+
         size = self.sizemap[addr]
         if self.returnPolicy == 'INSERT-BACK':
             self.freelist.append((addr, size))
@@ -128,7 +129,7 @@ class malloc:
                     self.curr = eaddr, esize
             self.newlist.append(self.curr)
             self.freelist = self.newlist
-            
+
         del self.sizemap[addr]
         return 0
 
@@ -145,12 +146,12 @@ class malloc:
 parser = OptionParser()
 
 parser.add_option('-s', '--seed',        default=0,          help='the random seed',                             action='store', type='int',    dest='seed')
-parser.add_option('-S', '--size',        default=100,        help='size of the heap',                            action='store', type='int',    dest='heapSize') 
-parser.add_option('-b', '--baseAddr',    default=1000,       help='base address of heap',                        action='store', type='int',    dest='baseAddr') 
+parser.add_option('-S', '--size',        default=100,        help='size of the heap',                            action='store', type='int',    dest='heapSize')
+parser.add_option('-b', '--baseAddr',    default=1000,       help='base address of heap',                        action='store', type='int',    dest='baseAddr')
 parser.add_option('-H', '--headerSize',  default=0,          help='size of the header',                          action='store', type='int',    dest='headerSize')
 parser.add_option('-a', '--alignment',   default=-1,         help='align allocated units to size; -1->no align', action='store', type='int',    dest='alignment')
-parser.add_option('-p', '--policy',      default='BEST',     help='list search (BEST, WORST, FIRST)',            action='store', type='string', dest='policy') 
-parser.add_option('-l', '--listOrder',   default='ADDRSORT', help='list order (ADDRSORT, SIZESORT+, SIZESORT-, INSERT-FRONT, INSERT-BACK)', action='store', type='string', dest='order') 
+parser.add_option('-p', '--policy',      default='BEST',     help='list search (BEST, WORST, FIRST)',            action='store', type='string', dest='policy')
+parser.add_option('-l', '--listOrder',   default='ADDRSORT', help='list order (ADDRSORT, SIZESORT+, SIZESORT-, INSERT-FRONT, INSERT-BACK)', action='store', type='string', dest='order')
 parser.add_option('-C', '--coalesce',    default=False,      help='coalesce the free list?',                     action='store_true',           dest='coalesce')
 parser.add_option('-n', '--numOps',      default=10,         help='number of random ops to generate',            action='store', type='int',    dest='opsNum')
 parser.add_option('-r', '--range',       default=10,         help='max alloc size',                              action='store', type='int',    dest='opsRange')
