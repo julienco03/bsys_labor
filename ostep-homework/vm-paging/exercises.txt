@@ -1,0 +1,46 @@
+1.  Die page table wächst proportional zum address space.
+    Die page table verhält sich antiproportional zur steigenden page size.
+    => page_table_entries = address_space / page_size
+
+    Große pages werden vermieden, da oft viel Speicher verschwendet werden kann, indem pages teils leer bleiben.
+
+2.  python3 paging-linear-translate.py -P 1k -a 16k -p 32k -v -u 0
+    => Alle Adressen sind unvalid, da alle pages nicht gefüllt sind (und somit auch unvalid).
+
+    python3 paging-linear-translate.py -P 1k -a 16k -p 32k -v -u 25
+    VA 0x00003986 (decimal:    14726) --> unvalid
+    VA 0x00002bc6 (decimal:    11206) --> 20422 [VPN:1100, PFN:10011]
+    VA 0x00001e37 (decimal:     7735) --> unvalid
+    VA 0x00000671 (decimal:     1649) --> unvalid
+    VA 0x00001bc9 (decimal:     7113) --> unvalid
+
+    python3 paging-linear-translate.py -P 1k -a 16k -p 32k -v -u 50
+    VA 0x00003385 (decimal:    13189) --> 16261 [VPN:1100, PFN:1111]
+    VA 0x0000231d (decimal:     8989) --> unvalid [VPN:1000]
+    VA 0x000000e6 (decimal:      230) --> 24806 [VPN:0000, PFN:11000]
+    VA 0x00002e0f (decimal:    11791) --> unvalid [VPN:1011]
+    VA 0x00001986 (decimal:     6534) --> 30086 [VPN:0110, PFN:11101]
+
+    python3 paging-linear-translate.py -P 1k -a 16k -p 32k -v -u 75
+    VA 0x00002e0f (decimal:    11791) --> 19983 [VPN:1011,PFN:10011]
+    VA 0x00001986 (decimal:     6534) --> 32134 [VPN:0110,PFN:11111]
+    VA 0x000034ca (decimal:    13514) --> 27850 [VPN:1101,PFN:11011]
+    VA 0x00002ac3 (decimal:    10947) --> 3779 [VPN:1010,PFN:0011]
+    VA 0x00000012 (decimal:       18) --> 24594 [VPN:0000,PFN:11000]
+
+    => Je höher der Anteil der allokierten pages ist, desto höher der Anteil der gültigen Adressen.
+
+3.  Die Parameter des ersten Befehls sind unrealistisch, da der virtual address space sehr klein ist
+    und dementsprechend auch die page size.
+    Beim zweiten Beispiel ist die Dimension der Speicher ebenfalls klein, aber relativ gesehen realistisch.
+    Das dritte Beispiel besitzt als Parameter einen vergleichsweise sehr großen virtuellen Speicher, der die Hälfte
+    des gesamten Arbeitsspeichers ausmacht. Das kommt in der Praxis eher nicht vor.
+
+4.  python3 paging-linear-translate.py -P 2k -a 1k
+    => address space muss größer sein als page size (und ein Vielfaches davon), ansonsten macht paging keinen Sinn
+
+    python3 paging-linear-translate.py -a 1m -p 1m
+    => physikalischer Speicher muss größer sein als der virtuelle Speicher, da ansonsten manche Teile nie in den
+    Arbeitsspeicher geladen werden können und somit nie ausgeführt bzw. genutzt werden können
+
+
