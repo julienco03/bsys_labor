@@ -1,0 +1,20 @@
+1.  Man benötigt unabhängig davon wie viele Level die page table besitzt nur ein Register,
+    nämlich das page directory base register (PDBR) von der top-level page directory.
+    Auf die Basisadresse der anderen page directories und der page table wird jeweils
+    über die PFN zugegriffen.
+
+2.  python3 ./paging-multilevel-translate.py -s 0
+
+    PDBR: 108, VA: 0x611c <-> 110 00|01 000|1 1100 <-> PDIndex=24 | PTIndex=8 | Offset=28
+    PDE contents in page 108 (24th byte): 0xa1 <-> 1|010 0001 <-> valid | 33
+    PTE contents in page 33 (8th byte): 0xb5 <-> 1|011 0101 <-> valid | 53
+    Value in page 53 (28th byte): 0x8 <-> 8
+    PA: 110101(PFN) 11100(offset) <-> 0x6bc
+
+    PDBR: 108, VA: 0x3da8 <-> 011 11|01 101|0 1000 <-> PDIndex=15 | PTIndex=13 | Offset=8
+    PDE contents in page 108 (15th byte): 0xd6 <-> 1|101 0110 <-> valid | 86
+    PTE contents in page 86 (13th byte): 0x7f <-> 0|111 1111 <-> unvalid | 127
+    PAGE_FAULT
+
+3.  Zugriff auf top-level page directory --> Geschwindigkeitsvorteil durch häufige Zugriffe zeitlich hintereinander
+    Zugriff auf page table entries --> Geschwindigkeitsvorteil durch Ausnutzung der räumlichen Nähe
