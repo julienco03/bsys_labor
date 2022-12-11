@@ -1,0 +1,41 @@
+1.  Does it point to the right lines of code?
+    => Zeile 8 & Zeile 15, stimmt.
+    What other information does it give to you?
+    => Dass ein data race möglich ist und dass keine lock gehalten wird.
+    Außerdem die Adresse des Konflikts und die Größe der Variablen 'balance'.
+
+2.  What happens when you remove one of the offending lines of code?
+    => Entfernt man z.B. Zeile 15, meldet helgrind keinen Fehler mehr.
+    Now add a lock around one of the updates to the shared variable, and then
+    around both. What does helgrind report in each of these cases?
+    => Fügt man eine lock hinzu, meldet helgrind einen möglichen data race.
+    Fügt man zwei hinzu, meldet helgrind keinen Fehler.
+
+3.  Can you see what problem it might have?
+    => Die beiden Threads erheben beide eine Lock, wodurch
+    sie sich gegenseitig blockieren (können).
+
+4.  Now run helgrind on this code. What does helgrind report?
+    => Es wurde gegen die 'lock order' verstoßen.
+
+5.  Examine the code; does it have the same problem that main-deadlock.c has?
+    => Ja, es besteht wieder die Gefahr einer deadlock.
+    Should helgrind be reporting the same error?
+    => Ja.
+    What does this tell you about tools like helgrind?
+    => Kein Tool der Welt ist 100% zuverlässig.
+
+6.  Why is this code inefficient?
+    => Da aktiv auf den Thread gewartet wird. Dadurch werden CPU-Zyklen verschwendet.
+
+7.  Now run helgrind on this program. What does it report?
+    => Möglicher data race aufgrund von 'done', keine gehaltene lock.
+    Is the code correct?
+    => Nein, da die Ausgabe nicht-deterministisch ist, denn es wird nicht auf den Thread gewartet (kein join()).
+
+8.  Why is this code preferred to the previous version? Is it correctness, or performance, or both?
+    => Das Programm ist durch das Nutzen von einem signal-wait-Mechanismus effizienter wegen dem Warten
+    und zugleich von der Korrektheit besser.
+
+9.  Once again run helgrind on main-signal-cv. Does it report any errors?
+    => Nein.
