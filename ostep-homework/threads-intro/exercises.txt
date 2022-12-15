@@ -166,13 +166,13 @@ _______________________________________________________________________________
     2   1006 halt
     2   ----- Halt;Switch -----  ----- Halt;Switch -----
     2                            1006 halt
-Does the timing of the interrupt matter
+Does the timing of the interrupt matter?
 => Ja, wird der Thread nämlich nach dem Inkrementieren von value unterbrochen,
 wird der Wert von ax nicht in die shared ressorce geschrieben.
 Somit unterscheidet sich das Endergebnis je nach timing der Interrupts.
 Where can it safely occur
 => Nach Instruktion 1002.
-Where not
+Where not?
 => Zwischen den Instruktionen 1000 und 1002.
 In other words, where is the critical section exactly
 => Der kritische Bereich umfasst die Instruktionen 1000 bis 1002.
