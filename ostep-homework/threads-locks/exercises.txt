@@ -1,0 +1,170 @@
+1.  - Variablen flag und count werden definiert
+    - es wird solange geloopt bis flag 0 ist (lock free)
+    - flag wird auf 1 gesetzt (lock held)
+    - kritischer Bereich wird betreten, counter wird erhöht
+    - flag wird auf 0 gesetzt (lock free)
+    - falls weiter inkrmentiert werden soll, wird wieder zu .top gesprungen
+____________________________________________________________________________________________________
+2.  python3 ./x86.py -p flag.s -R ax,bx -M flag,count -c
+ flag count      ax    bx          Thread 0                Thread 1
+
+
+    0     0       0     0       1000 mov  flag, %ax
+    0     0       0     0   1001 test $0, %ax
+    0     0       0     0   1002 jne  .acquire
+    1     0       0     0   1003 mov  $1, flag
+    1     0       0     0   1004 mov  count, %ax
+    1     0       1     0   1005 add  $1, %ax
+    1     1       1     0   1006 mov  %ax, count
+    0     1       1     0   1007 mov  $0, flag
+    0     1       1    -1   1008 sub  $1, %bx
+    0     1       1    -1   1009 test $0, %bx
+    0     1       1    -1    1010 jgt .top
+    0     1       1    -1   1011 halt
+    0     1       0     0   ----- Halt;Switch -----  ----- Halt;Switch -----
+    0     1       0     0                            1000 mov  flag, %ax
+    0     1       0     0                            1001 test $0, %ax
+    0     1       0     0                            1002 jne  .acquire
+    1     1       0     0                            1003 mov  $1, flag
+    1     1       1     0                            1004 mov  count, %ax
+    1     1       2     0                            1005 add  $1, %ax
+    1     2       2     0                            1006 mov  %ax, count
+    0     2       2     0                            1007 mov  $0, flag
+    0     2       2    -1                            1008 sub  $1, %bx
+    0     2       2    -1                            1009 test $0, %bx
+    0     2       2    -1                            1010 jgt .top
+    0     2       2    -1                            1011 halt
+
+Can you predict what value will end up in flag?
+=> Ja, als letztes wird ein unlock ausgeführt, daher muss flag 0 betragen.
+____________________________________________________________________________________________________
+3.  python3 ./x86.py -p flag.s -R ax,bx -M flag,count -a bx=2,bx=2 -c
+ flag count      ax    bx          Thread 0                Thread 1
+
+    0     0       0     2
+    0     0       0     2   1000 mov  flag, %ax
+    0     0       0     2   1001 test $0, %ax
+    0     0       0     2   1002 jne  .acquire
+    1     0       0     2   1003 mov  $1, flag
+    1     0       0     2   1004 mov  count, %ax
+    1     0       1     2   1005 add  $1, %ax
+    1     1       1     2   1006 mov  %ax, count
+    0     1       1     2   1007 mov  $0, flag
+    0     1       1     1   1008 sub  $1, %bx
+    0     1       1     1   1009 test $0, %bx
+    0     1       1     1   1010 jgt .top
+    0     1       0     1   1000 mov  flag, %ax
+    0     1       0     1   1001 test $0, %ax
+    0     1       0     1   1002 jne  .acquire
+    1     1       0     1   1003 mov  $1, flag
+    1     1       1     1   1004 mov  count, %ax
+    1     1       2     1   1005 add  $1, %ax
+    1     2       2     1   1006 mov  %ax, count
+    0     2       2     1   1007 mov  $0, flag
+    0     2       2     0   1008 sub  $1, %bx
+    0     2       2     0   1009 test $0, %bx
+    0     2       2     0   1010 jgt .top
+    0     2       2     0   1011 halt
+    0     2       0     2   ----- Halt;Switch -----  ----- Halt;Switch -----
+    0     2       0     2                            1000 mov  flag, %ax
+    0     2       0     2                            1001 test $0, %ax
+    0     2       0     2                            1002 jne  .acquire
+    1     2       0     2                            1003 mov  $1, flag
+    1     2       2     2                            1004 mov  count, %ax
+    1     2       3     2                            1005 add  $1, %ax
+    1     3       3     2                            1006 mov  %ax, count
+    0     3       3     2                            1007 mov  $0, flag
+    0     3       3     1                            1008 sub  $1, %bx
+    0     3       3     1                            1009 test $0, %bx
+    0     3       3     1                            1010 jgt .top
+    0     3       0     1                            1000 mov  flag, %ax
+    0     3       0     1                            1001 test $0, %ax
+    0     3       0     1                            1002 jne  .acquire
+    1     3       0     1                            1003 mov  $1, flag
+    1     3       3     1                            1004 mov  count, %ax
+    1     3       4     1                            1005 add  $1, %ax
+    1     4       4     1                            1006 mov  %ax, count
+    0     4       4     1                            1007 mov  $0, flag
+    0     4       4     0                            1008 sub  $1, %bx
+    0     4       4     0                            1009 test $0, %bx
+    0     4       4     0                            1010 jgt .top
+    0     4       4     0                            1011 halt
+What does the code do?
+=> Beide Threads führen jeweils 2x lock-increment-unlock aus (da auf bx=2 gesetzt ist).
+How does it change your answer for the question above?
+'count' ist am Ende gleich 4 und 'flag' gleich 0.
+____________________________________________________________________________________________________
+4.  python3 ./x86.py -p flag.s -R ax,bx -M flag,count -a bx=10,bx=10 -i 1 -c
+
+        i=1 i=2 i=3 i=4 i=5 i=6 i=7 i=8 i=9 i=10 i=11 i=12 i=13 i=22 i=33
+
+count    10  10  13  17  18  18  16  16  18  19   20   17   17   20   20
+
+=> 'count' müsste am Ende immer den Wert 20 haben, hat jedoch den Werte zwischen 10 und 20.
+Nur i=11*n führt zu einem korrekten Ergebnis, andere interrupt frequencies führen zu fehlerhaften
+Resultaten. Das liegt daran, dass der Assembler-Code genau 11 Zeilen lang ist und bei i=11*n
+immer am Stück ausgeführt wird.
+____________________________________________________________________________________________________
+5.  How is the lock acquire written?
+    => Das Testen und Beanspruchen der Lock passiert in einem Befehl ('xchg %ax, mutex').
+    Wenn mutex=0 (lock held) und ax=1 (acquire lock) gilt, dann werden die Werte der Register getauscht,
+    sodass 'xchg' wegen ax=0 Null zurückgibt (lock free) und gleichzeitig die lock beansprucht (da mutex=1).
+
+    How about lock release?
+    => Wie schon bei flag.s wird mutex einfach auf 0 gesetzt.
+____________________________________________________________________________________________________
+6.  python3 ./x86.py -p test-and-set.s -R ax,bx -M mutex,count -a bx=100,bx=100 -i 1 -c
+
+Does the code always work as expected?
+=> Ja, count besitzt immer den Wert 'bx' mal Anzahl Threads.
+Does it sometimes lead to an inefficient use of the CPU?
+=> Ja, vor allem mit zunehmend mehr Threads. Wird nämlich der Thread interrupted, der gerade die lock
+beansprucht, so kann es dazu kommen, dass nach dem Interrupt alle anderen Threads versuchen die lock
+zu beanspruchen, was nicht möglich ist, sodass diese Threads für wenige time slices spin-waiting machen.
+Im schlimmsten Falle bedeutet das, dass N-1 * x time-slices verloren gehen. (N = Anzahl Threads)
+____________________________________________________________________________________________________
+7.  python3 ./x86.py -p test-and-set.s -R ax,bx -M mutex,count -P 0011 -c
+
+Does the right thing happen?
+=> Ja, Thread0 beansprucht die lock und Thread1 muss ein mal spin-waiting machen.
+____________________________________________________________________________________________________
+9.  python3 ./x86.py -p peterson.s -M count,flag,turn -R ax,cx -a bx=0,bx=1 -i 1 -c
+
+What kinds of different behavior do you see?
+=> Das Programm arbeitet für alle interrupt frequencies korrekt.
+____________________________________________________________________________________________________
+10. Can you control the scheduling (with the -P flag) to “prove” that the code works?
+    => python3 ./x86.py -p peterson.s -M count,flag,turn -R ax,cx -a bx=0,bx=1 -P 0000011111 -c
+    Das Programm arbeitet selbst dann korrekt, wenn man jedes Mal beim Beanspruchen der Lock
+    bzw. beim Setzen von 'flag[self]' und 'turn' diese Werte vom jeweils anderen Thread geändert werden.
+____________________________________________________________________________________________________
+11. python3 ./x86.py -p ticket.s -a bx=1000,bx=1000 -c
+
+    Does it match the code in the chapter?
+    => Ja.
+    Watch what happens...
+    => 'count' ist korrekt.
+    Do the threads spend much time spin-waiting for the lock?
+    => Je nach interrupt timing kann es zu sehr viel spin-waiting (move-test-jne) kommen.
+____________________________________________________________________________________________________
+12. python3 ./x86.py -p ticket.s -t 3 -a bx=10,bx=10,bx=10 -M count,ticket,turn -c
+
+    How does the code behave as you add more threads?
+    => Das spin-waiting verschlimmert sich (no shit sherlock).
+____________________________________________________________________________________________________
+13. Find a scenario where test-and-set.s wastes cycles spinning, but yield.s does not.
+    => python3 ./x86.py -p test-and-set.s -M count,mutex -R ax,bx -a bx=5,bx=5 -c -i 7
+    => python3 ./x86.py -p yield.s -M count,mutex -R ax,bx -a bx=5,bx=5 -c -i 7
+
+    How many instructions are saved?
+    => Eine.
+
+    In what scenarios do these savings arise?
+    => Wenn der Thread die lock nicht hat, aber beanspruchen will.
+____________________________________________________________________________________________________
+14. What does this lock do?
+    => 'xchg' wird erst ausgeführt, wenn mutex=0 ist. Solange mutex=1 ist, wird geloopt.
+
+    What kind of savings does it introduce as compared to test-and-set.s?
+    => Innerhalb der loop sind nur 2 anstatt 3 Instruktionen.
+    Man spart sich also langsames Schreiben (wegen 'xchg').
