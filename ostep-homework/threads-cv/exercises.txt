@@ -1,0 +1,52 @@
+2.  Start with a buffer (size 1), and then increase it.
+    How does the behavior of the code change with larger buffers? (or does it?)
+    ===> Da -l=1 gilt (also jeder producer nur ein Element erzeugt), ändert die Größe
+    des Buffers nichts am Verhalten des Programms.
+
+    What would you predict num_full to be with different buffer sizes (e.g., -m 10)
+    and different numbers of produced items (e.g., -l 100), when you change the consumer
+    sleep string from default (no sleep) to -C 0,0,0,0,0,0,1?
+
+    ./main-two-cvs-while -p 1 -c 1 -m 10 -l 100 -C 0,0,0,0,0,0,1 -v
+    ===> Schätzung: 0, da von Anfang bis Ende nur der producer läuft und den Buffer füllt (NF=10)
+    und der consumer als letztes den Buffer komplett leert -> "while (tmp != END_OF_STREAM)".
+
+4.  How long do you think the following execution, with one producer, three consumers, a single-entry
+    shared buffer, and each consumer pausing at point c3 for a second, will take?
+    ./main-two-cvs-while -p 1 -c 3 -m 1 -C 0,0,0,1,0,0,0:0,0,0,1,0,0,0:0,0,0,1,0,0,0 -l 10 -v -t
+    ===> 10 Sekunden, da alle consumer 10x wegen der while-Schleife wait() aufrufen.
+    Richtig: 11-13 Sekunden.
+
+5.  Now change the size of the shared buffer to 3 (-m 3). Will this make any difference in the total time?
+    ===> Nein, es sind unabhängig von '-m' immer 11-13 Sekunden.
+    (Wahrscheinlich weil sich die Anzahl Schleifen nicht verändert)
+
+6.  Now change the location of the sleep to c6 (this models a consumer taking something off the queue and
+    then doing something with it), again using a single-entry buffer. What time do you predict in this case?
+    ./main-two-cvs-while -p 1 -c 3 -m 1 -C 0,0,0,0,0,0,1:0,0,0,0,0,0,1:0,0,0,0,0,0,1 -l 10 -v -t
+    ===> Schätzung: 3 Sekunden.
+    Richtig: 5 Sekunden, da wenn ein consumer schläft und somit die Lock aufhebt, die anderen consumer
+    Fortschritt machen können.
+
+7.  Finally, change the buffer size to 3 again (-m 3). What time do you predict now?
+    ===> Schätzung: Gleiche Zeit wie mit '-m 1'.
+    Richtig: Wieder 5 Sekunden.
+
+8.  Now let’s look at main-one-cv-while.c. Can you configure a sleep string, assuming
+    a single producer, one consumer, and a buffer of size 1, to cause a problem with this code?
+    ===> Nein, da es eben nur einen consumer/producer gibt und sie sich immer gegenseitig aufwecken.
+
+9.  Now change the number of consumers to two. Can you construct sleep strings for the producer and
+    the consumers so as to cause a problem in the code?
+    ===> Ja, es ist möglich.
+    ./main-one-cv-while -c 2 -v -P 0,0,0,0,0,0,1
+
+10. Now examine main-two-cvs-if.c. Can you cause a problem to happen in this code?
+    ===> Mit nur einem consumer/producer kann kein Problem entstehen. Mit mehr als einem consumer jedoch schon.
+    C1 weckt nämlich C0 (den zweiten consumer) anstelle von P0, obwohl der buffer leer ist.
+    ./main-two-cvs-if -p 1 -c 2 -l 10 -m 1 -C 0,0,0,0,0,0,0:0,0,0,0,1,0,0 -v
+
+11. Finally, examine main-two-cvs-while-extra-unlock.c. What problem arises when you release the lock before doing
+    a put or a get? Can you reliably cause such a problem to happen, given the sleep strings? What bad thing can happen?
+    ===> C0 konsumiert nur einen Wert.
+    ./main-two-cvs-while-extra-unlock -p 1 -c 2 -m 10 -l 10 -v -C 0,0,0,0,1,0,0:0,0,0,0,0,0,0

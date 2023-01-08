@@ -13,7 +13,10 @@
 // other integers to track things.
 
 typedef struct __barrier_t {
-    // add semaphores and other information here
+   sem_t    *lock;
+   sem_t    *sem;
+   int      num_arrived;
+   int      num_threads;
 } barrier_t;
 
 
@@ -21,11 +24,23 @@ typedef struct __barrier_t {
 barrier_t b;
 
 void barrier_init(barrier_t *b, int num_threads) {
-    // initialization code goes here
+    b->lock = malloc(sizeof(sem_t));
+    b->sem = malloc(sizeof(sem_t));
+    Sem_init(b->lock, 1);
+    Sem_init(b->sem, 0);
+    b->num_arrived = 0;
+    b->num_threads = num_threads;
 }
 
 void barrier(barrier_t *b) {
-    // barrier code goes here
+    Sem_wait(b->lock);
+    b->num_arrived++;
+    if (b->num_arrived == b->num_threads) {
+        Sem_post(b->sem);
+    }
+    Sem_post(b->lock);
+    Sem_wait(b->sem);
+    Sem_post(b->sem);
 }
 
 //
@@ -44,7 +59,7 @@ void *child(void *arg) {
 }
 
 
-// run with a single argument indicating the number of 
+// run with a single argument indicating the number of
 // threads you wish to create (1 or more)
 int main(int argc, char *argv[]) {
     assert(argc == 2);
@@ -56,17 +71,20 @@ int main(int argc, char *argv[]) {
 
     printf("parent: begin\n");
     barrier_init(&b, num_threads);
-    
+
     int i;
     for (i = 0; i < num_threads; i++) {
 	t[i].thread_id = i;
 	Pthread_create(&p[i], NULL, child, &t[i]);
     }
 
-    for (i = 0; i < num_threads; i++) 
+    for (i = 0; i < num_threads; i++)
 	Pthread_join(p[i], NULL);
 
     printf("parent: end\n");
+
+    free(b.lock);
+    free(b.sem);
     return 0;
 }
 
