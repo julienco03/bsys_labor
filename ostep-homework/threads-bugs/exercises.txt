@@ -1,0 +1,68 @@
+1.  Run './vector-deadlock -n 2 -l 1 -v'.How does the output change from run to run?
+    ===> Reihenfolge ist nicht deterministisch.
+
+2.  Now add the -d flag, and change the number of loops (-l) from 1 to higher numbers.
+    What happens? Does the code (always) deadlock?
+    ./vector-deadlock -n 2 -l 10000 -v -d
+    ===> Ja, es kommt mit steigender Anzahl an loops zu immer mehr Deadlocks.
+
+3.  How does changing the number of threads (-n) change the outcome of the program?
+    Are there any values of -n that ensure no deadlock occurs?
+    ===> Für -n 3 entsteht fast immer eine Deadlock. Das ist auch mit mehr Threads so.
+    ===> Für -n 1 können keine Deadlocks entstehen.
+
+4.  Do you understand why the code avoids deadlock?
+    Also, why is there a special case in this vector add() routine when the source and destination vectors are the same?
+    ===> Durch eine feste lock order (gegeben durch die Adressen der locks) umgeht man
+    'circular wait'. Dadurch entstehen keine Deadlocks.
+    ===> Wenn dst und src gleich sind, kann einfach src mit src addiert werden. Das liefert
+    das selbe Ergebnis, ist aber performanter, da nur src gelockt werden muss.
+
+5.  Now run the code: ./vector-global-order -t -n 2 -l 100000 -d.
+    How long does the code take to complete?
+    How does the total time change when you increase the number of loops, or the number of threads?
+    ===> Time: 0.03sec
+    ===> Lineare Laufzeit (z.B. für loops=100_000 gilt 0.03sec <-> für loops=10_000_000 gilt 3.17sec).
+    Mehr Threads verlangsamen die Ausführungszeit.
+
+6.  What happens if you turn on the parallelism flag (-p)? How much would you expect performance to change
+    when each thread is working on adding different vectors (which is what -p enables) versus working on the same ones?
+    ===> Zu erwarten ist eine erkennbare Performancesteigerung.
+    ===> Vergleich mit -n 2 -l 10_000_000:
+                ohne -p     3.17sec
+                mit -p      1.77sec
+
+7.  Is the first call to pthread mutex trylock() really needed?
+    How fast does it run compared to the global order approach?
+    How does the number of retries, as counted by the code, change as the number of threads increases?
+    ===> Nein, das normale lock() würde auch gehen.
+    ===> Vergleich mit -n 2 -l 10_000_000:
+                global-order:   3.17sec
+                try-wait:       11.63sec
+    ===> Vergleich mit -l 1_000_000:
+                -n 2    1.05sec
+                -n 4    8.77sec
+                -n 8    37.93sec
+
+8.  What is the main problem with this approach?
+    How does its performance compare to the other versions, when running both with -p and without it?
+    ===> Kaum Nebenläufigkeit, da nur ein Thread zur gleichen Zeit Vektoren addieren kann.*
+    ===> Vergleich mit -n 2 -l 100_000:
+                ohne -p:
+                global-order    0.03sec
+                try-wait        0.11sec
+                hold-and-wait   0.07sec
+
+                mit -p:
+                global-order    0.02sec
+                try-wait        0.02sec
+                hold-and-wait   0.07sec*
+
+9.  Does it provide the exact same semantics as the other versions? Why or why not?
+    ===> Naja, es macht das selbe, aber nutzt die atomare Funktion 'FetchAndAdd'.
+
+10. Now compare its performance to the other versions. How does this no-lock version perform?
+    ===> Vergleich mit -n 2 -l 100_000:
+                ohne -p:    0.17sec
+                mit -p:     0.08sec
+    ===> Performt etwas schlechter als die anderen Programme.
